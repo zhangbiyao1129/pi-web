@@ -139,6 +139,48 @@ body {
 }
 
 
+.extension-status-collapse-widgets {
+  min-width: 0;
+}
+
+.extension-status-collapse-widgets .extension-widget-panels {
+  position: absolute;
+  z-index: 45;
+  top: 42px;
+  left: 12px;
+  right: 12px;
+  max-height: min(220px, 32dvh);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px color-mix(in srgb, #000 22%, transparent);
+}
+
+.extension-status-collapse-widgets .extension-widget-triggers {
+  display: flex;
+  gap: 6px;
+  height: auto;
+  overflow: visible;
+}
+
+.extension-status-collapse-widgets .extension-widget-trigger {
+  flex: 0 0 72px;
+  justify-content: center;
+  width: 72px;
+  height: 30px;
+  padding: 2px 7px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.extension-status-collapse-widgets .extension-widget-placement {
+  display: none;
+}
+
+.extension-status-collapse-widgets .extension-widget-key {
+  flex: 0 1 auto;
+  text-align: center;
+}
+
 .extension-status-shelf {
   display: flex;
   flex-shrink: 0;
