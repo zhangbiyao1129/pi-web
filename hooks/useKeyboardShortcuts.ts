@@ -21,7 +21,7 @@ export function registerAbortHandler(handler: (() => void) | null): void {
 // ---------------------------------------------------------------------------
 
 interface UseGlobalKeyboardShortcutsOptions {
-  /** Called when Ctrl+Alt+N is pressed. Receives current cwd. */
+  /** Called when Cmd/Ctrl+E is pressed. Receives current cwd. */
   onNewSession?: (cwd: string) => void;
   /** The currently selected project directory (sidebar cwd). */
   activeCwd?: string | null;
@@ -32,7 +32,8 @@ interface UseGlobalKeyboardShortcutsOptions {
  *
  * Shortcuts handled here:
  *   Esc          – stop the running agent (via module-level abort handler)
- *   Ctrl+Alt+N   – create a new session in the active project directory
+ *   Cmd+E        – create a new session in the active project directory (Mac)
+ *   Ctrl+E       – create a new session (Windows/Linux)
  *
  * Note: Esc inside <textarea> or <input> is deliberately NOT handled here.
  * ChatInput manages its own Esc logic (closing slash / @ file menus, stopping
@@ -59,15 +60,19 @@ export function useGlobalKeyboardShortcuts(
         return;
       }
 
-      // ---- Ctrl+Alt+N: new session ----
-      if (e.key === "n" && e.ctrlKey && e.altKey) {
-        if (!activeCwd || !onNewSession) return;
+      // ---- Cmd+E (Mac) / Ctrl+E (Windows/Linux): new session ----
+      if (e.key.toLowerCase() === "e" && !e.altKey && ((e.metaKey && !e.ctrlKey) || (e.ctrlKey && !e.metaKey))) {
+        // Always swallow the browser default (e.g. focus address bar), even
+        // when no project is selected yet — otherwise the shortcut leaks.
         e.preventDefault();
+        if (!activeCwd || !onNewSession) return;
         onNewSession(activeCwd);
       }
     };
 
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
+    // Use capture phase so the shortcut is intercepted before any other
+    // handler on the page.
+    window.addEventListener("keydown", handler, true);
+    return () => window.removeEventListener("keydown", handler, true);
   }, [activeCwd, onNewSession]);
 }

@@ -10,6 +10,7 @@ import { MessageView } from "./MessageView";
 import { ChatInput, type ChatInputHandle } from "./ChatInput";
 import { ChatMinimap, useMessageRefs } from "./ChatMinimap";
 import { ExtensionStatusBar } from "./ExtensionStatusBar";
+import { ExtensionStatusCollapse } from "./ExtensionStatusCollapse";
 import { AnsiText } from "./AnsiText";
 import { useI18n } from "@/hooks/useI18n";
 import { useAgentSession, type AgentPhase, type NoticeItem } from "@/hooks/useAgentSession";
@@ -657,6 +658,9 @@ export function ChatWindow({ session, sessionRunning, newSessionCwd, newSessionD
         </div>
       )}
 
+      {/* Collapsible extension statuses (cbm, todo, …) pinned to the top */}
+      <ExtensionStatusCollapse statuses={extensionStatuses} />
+
       {extensionDialog && (
         <ExtensionDialog
           request={extensionDialog}
@@ -718,7 +722,7 @@ export function ChatWindow({ session, sessionRunning, newSessionCwd, newSessionD
               </div>
             </div>
             {chatInputElement}
-            <ExtensionStatusBar statuses={extensionStatuses} widgets={extensionWidgets} />
+            <ExtensionStatusBar statuses={[]} widgets={extensionWidgets} />
           </div>
         </div>
       ) : (
@@ -963,7 +967,7 @@ export function ChatWindow({ session, sessionRunning, newSessionCwd, newSessionD
 
       <div className="relative">
         {chatInputElement}
-        <ExtensionStatusBar statuses={extensionStatuses} widgets={extensionWidgets} />
+        <ExtensionStatusBar statuses={[]} widgets={extensionWidgets} />
       </div>
       </>
       )}
