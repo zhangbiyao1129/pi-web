@@ -3,17 +3,24 @@
 import { useState } from "react";
 import { AnsiText } from "./AnsiText";
 import { sanitizeExtensionStatusText } from "./ExtensionStatusBar";
-import type { ExtensionStatusItem } from "@/lib/types";
+import { ExtensionWidgets } from "./ExtensionWidgets";
+import type { ExtensionStatusItem, ExtensionWidgetItem } from "@/lib/types";
 
 /**
  * Collapsed status shelf for extension statuses (e.g. "cbm", "todo").
  * Renders one small chip per status key at the top of the chat area;
  * clicking a chip expands it to show the full status text.
  */
-export function ExtensionStatusCollapse({ statuses }: { statuses: ExtensionStatusItem[] }) {
+export function ExtensionStatusCollapse({
+  statuses,
+  widgets = [],
+}: {
+  statuses: ExtensionStatusItem[];
+  widgets?: ExtensionWidgetItem[];
+}) {
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(() => new Set());
 
-  if (statuses.length === 0) return null;
+  if (statuses.length === 0 && widgets.length === 0) return null;
 
   const toggle = (key: string) => {
     setExpandedKeys((prev) => {
@@ -34,10 +41,15 @@ export function ExtensionStatusCollapse({ statuses }: { statuses: ExtensionStatu
         display: "flex",
         flexWrap: "wrap",
         gap: 6,
-        padding: "6px 12px 0",
+        padding: "6px 12px",
         alignItems: "flex-start",
       }}
     >
+      {widgets.length > 0 && (
+        <div className="extension-status-collapse-widgets">
+          <ExtensionWidgets widgets={widgets} />
+        </div>
+      )}
       {statuses.map((s) => {
         const expanded = expandedKeys.has(s.key);
         return (
@@ -50,12 +62,15 @@ export function ExtensionStatusCollapse({ statuses }: { statuses: ExtensionStatu
               style={{
                 display: "inline-flex",
                 alignItems: "center",
+                justifyContent: "center",
                 gap: 4,
-                padding: "2px 9px",
+                minWidth: 72,
+                height: 30,
+                padding: "2px 8px",
                 fontSize: 10,
                 fontFamily: "var(--font-mono)",
-                lineHeight: 1.5,
-                borderRadius: 999,
+                lineHeight: 1.2,
+                borderRadius: 6,
                 border: "1px solid var(--border)",
                 background: expanded ? "var(--bg-selected)" : "none",
                 color: expanded ? "var(--text)" : "var(--text-muted)",

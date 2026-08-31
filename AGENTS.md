@@ -20,6 +20,24 @@ Lint: `npm run lint`
 
 ---
 
+## Deployment (production 18121)
+
+**所有更新 / 部署必须走脚本,不要手动 build + start,更不要用 `pkill`。**
+
+```bash
+~/bin/deploy-pi-web.sh
+```
+
+- 正式服务是 launchd 服务 `com.pi-web`,监听 `0.0.0.0:18121`,`KeepAlive=true`,工作目录就是本 worktree。这里的代码改动构建后才会体现在 18121 上。
+- 脚本行为:从 plist 自动读取工作目录和端口 → 备份当前 `.next` → `npm run build`（**只有构建成功才重启**）→ `launchctl kickstart -k com.pi-web` 定向重启 → 健康检查（HTTP 200/401 均视为存活）→ 不健康自动回滚到上一版本。
+- 构建失败时**不会重启**正在运行的服务，线上保持旧版本；被写坏的 `.next` 会从备份还原，保证 KeepAlive 重启也读到好产物。
+- 严禁 `pkill -f "next start"` 之类的全局杀进程：会误杀 18121 正式服务和其他端口的 next 进程。重启只用 `launchctl kickstart -k com.pi-web`；服务未加载时用 `launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.pi-web.plist`。
+- 部署日志在 `/tmp/pi-web-deploy-<时间戳>.log`；回滚时坏产物保留为 `.next.failed-<时间戳>` 供排查。
+- 脚本有并发锁 `/tmp/pi-web-deploy.lock`，不要并行触发两次部署。
+
+
+---
+
 ## Architecture
 
 ```
